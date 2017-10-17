@@ -46,16 +46,26 @@ class DropdownContinent extends React.Component{
   }
 
   class FilteredTable extends React.Component{
+    constructor(props){
+      super(props);
+      this.deleteCountry=this.deleteCountry.bind(this);
+    }
+
+    deleteCountry(country){
+      this.props.deleteCountry(country);
+    }
+
     render(){
       const chosenContinent = this.props.chosenContinent
       const rows=[];
-      this.props.countries.forEach(function(countries){
-        if(countries.continent===chosenContinent || chosenContinent==="All"){
+      this.props.countries.forEach((country)=>{
+        if(country.continent===chosenContinent || chosenContinent==="All"){
           rows.push(
             <tr>
-              <td>{countries.name}</td>
-              <td>{countries.capital}</td>
-              <td>{countries.continent}</td>
+              <td>{country.name}</td>
+              <td>{country.capital}</td>
+              <td>{country.continent}</td>
+              <td onClick={()=>this.deleteCountry(country)}>X</td>
             </tr>
           )
         }
@@ -83,13 +93,15 @@ class InputCountries extends React.Component{
       this.onChangeInputContinent = this.onChangeInputContinent.bind(this)
     }
     addNewCountries(){
-      this.props.countries.push({name:this.state.name,capital:this.state.capital,continent:this.state.continent})
+      const temp = this.props.countries.slice(0);
+      // this.props.countries.push({name:this.state.name,capital:this.state.capital,continent:this.state.continent})
+      temp.push({name:this.state.name,capital:this.state.capital,continent:this.state.continent})
       this.setState({
         name:' ',
         capital:' ',
         continent:' '
       })
-      this.props.countriesAdded()
+      this.props.countriesAdded(temp)
     }
 
     onChangeInputName(e){
@@ -130,6 +142,7 @@ constructor(props){
   }
   this.handleChangeContinent=this.handleChangeContinent.bind(this)
   this.countriesDataChange=this.countriesDataChange.bind(this)
+  this.deleteCountry=this.deleteCountry.bind(this)
 }
 
 handleChangeContinent(chosenContinent){
@@ -138,10 +151,21 @@ handleChangeContinent(chosenContinent){
   })
 }
 
-countriesDataChange(e){
+countriesDataChange(countriesAdd){
   this.setState({
-    e:e
+      countriesData:countriesAdd
   })
+}
+
+deleteCountry(deleteCountry){
+  const temp = this.state.countriesData.slice(0);
+  temp.splice(this.state.countriesData.indexOf(deleteCountry),1)
+  this.setState({
+    countriesData:temp
+  })
+  // console.log(temp)
+  // console.log(this.state.countriesData.indexOf(deleteCountry))
+
 }
 
 render(){
@@ -157,7 +181,7 @@ render(){
               <th>Continent</th>
             </tr>
           </thead>
-          <FilteredTable countries={this.state.countriesData} chosenContinent={this.state.chosenContinent} />
+          <FilteredTable countries={this.state.countriesData} chosenContinent={this.state.chosenContinent}  deleteCountry={this.deleteCountry}/>
         </table>
       </div>
     )
